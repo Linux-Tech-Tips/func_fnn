@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "matrix.h"
+#include "activation.h"
 
 int main(void) {
 
@@ -22,7 +23,7 @@ int main(void) {
     matrix_set(&m2, 0, 0, 5);
     matrix_set(&m2, 0, 1, 8);
     matrix_set(&m2, 1, 0, 6);
-    matrix_set(&m2, 1, 1, 7);
+    matrix_set(&m2, 1, 1, -7);
     matrix_set(&m2, 2, 0, 2);
     matrix_set(&m2, 2, 1, 1);
 
@@ -37,6 +38,15 @@ int main(void) {
 	return 1;
     }
 
+    matrix_print(&result);
+
+    activation_t a1 = activation_relu;
+    activation_t a2 = activation_logistic;
+
+    a1(&result);
+    matrix_print(&result);
+
+    a2(&result);
     matrix_print(&result);
 
     matrix_destroy(&m1);
