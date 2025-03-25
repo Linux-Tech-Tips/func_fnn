@@ -49,6 +49,9 @@ int main(void) {
     a2(&result);
     matrix_print(&result);
 
+    activation_softmax(&result);
+    matrix_print(&result);
+
     matrix_destroy(&m1);
     matrix_destroy(&m2);
 

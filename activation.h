@@ -22,4 +22,7 @@ void activation_relu(matrix_t * m);
 /** Logistic elementwise activation function */
 void activation_logistic(matrix_t * m);
 
+/** Softmax fold activation function */
+void activation_softmax(matrix_t * m);
+
 #endif /* ACTIVATION_H */
