@@ -20,3 +20,13 @@ The plan is therefore:
   - Run LastIn through activation function, keep it for the next iteration
   - Once no more matrices left, what's in LastIn is the result
 - Training will be somewhat more difficult xd
+
+## Notes about network structure
+
+```
+layers: In -> W1 -> W2 -> Out
+            -weights W1\*In
+                  -weights W2\*W1
+                        -weights Out\*W2
+```
+
