@@ -89,7 +89,7 @@ network_err_t network_inference(network_t * net, matrix_t * input, matrix_t * ou
 	/* Free temporarily allocated space, copy temporary result over to the previous result */
 	if(matrix_destroy(&prevResult) != MATRIX_OK)
 	    return NETWORK_ERR_ALLOC;
-	net->activations[layerIdx](&tmpResult);
+	net->activations[layerIdx].f(&tmpResult);
 	prevResult = tmpResult;
     }
     /* Writing data to output and freeing allocated resources */

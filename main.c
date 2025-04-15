@@ -44,13 +44,10 @@ int main(void) {
     activation_t a1 = activation_relu;
     activation_t a2 = activation_logistic;
 
-    a1(&result);
+    a1.f(&result);
     matrix_print(&result);
 
-    a2(&result);
-    matrix_print(&result);
-
-    activation_softmax(&result);
+    a2.f(&result);
     matrix_print(&result);
 
     matrix_destroy(&m1);
