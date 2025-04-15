@@ -30,3 +30,46 @@ layers: In -> W1 -> W2 -> Out
                         -weights Out\*W2
 ```
 
+
+## Plan for network training
+
+Given training data, a set of input/output matrix pairs, we can use gradient descent to train the perceptron
+
+Necessary variables:
+
+- Inputs (X matrices with the same shape as the network input)
+- Outputs (X matrices with the same shape as the network output)
+- Learning rate (hyperparameter floating point number affecting the weights convergence)
+- Derivative of any used activation function
+
+Internal representation:
+
+- Struct with matrix lists, length of training data and learning rate
+- Function running training for N iterations using a training structure
+
+Required stuff:
+
+- For the change of a weight to an output node, we need:
+  - value of node *i* in previous layer connected to the weight
+  - value of current output node before activation
+  - derivative of the current activation
+  - error at current output node (difference between the expected value and inferred value)
+  - learning rate
+- Part of this gives us the derivative of the error function based on the current node inputs
+- For the change of a weight to a hidden node, we need:
+  - value of node *i* in previous layer connected to the weight
+  - value of current node before activation
+  - derivative of the current activation
+  - all current weights leading to the next layer from the current node
+  - all derivatives of the error function based on the node inputs for the nodes in the next layer
+  - learning rate
+
+In code, this translates to keeping track of:
+
+- all weights of the network
+- all values of each node, before and after activation, in the network
+- activations and their derivatives for each layer
+- expected value and inferred value at each output
+- calculated error function derivatives for each node in the previously calculated layer, for anything after output
+
+This will require the inference function to be able to keep track of the calculated values at nodes.
