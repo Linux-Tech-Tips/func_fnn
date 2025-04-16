@@ -6,8 +6,17 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#include <stdlib.h>
+
 #include "matrix.h"
 #include "activation.h"
+
+/** Minimum value for the weight initialization random integer generator */
+#define NETWORK_WEIGHT_RAND_MIN 100
+/** Maximum value for the weight initialization random integer generator */
+#define NETWORK_WEIGHT_RAND_MAX 1000
+/** Inverse multiplier for the generated integer for random weight initialization - use this to initialize to floating point numbers */
+#define NETWORK_WEIGHT_RAND_DIV 100.0f
 
 /** Data structure representing a neural network */
 typedef struct {
@@ -32,7 +41,7 @@ typedef struct {
     size_t depth;
     /** The sizes of each individual layer */
     size_t * layers;
-    /** The data within the network tracker */
+    /** The data within the network tracker (first array is layer, second is node at layer, third is before/after activation) */
     MATRIX_TYPE *** layerData;
 } network_tracker_t;
 
@@ -64,6 +73,12 @@ typedef enum {
  */
 network_err_t network_init(network_t * net, size_t inSize, size_t depth, size_t * layers, activation_t * activations);
 
+/** Initialize the weights of a network_t data structure to random values */
+network_err_t network_initWeights(network_t * net);
+
+/** Internal function for weight initialization, generates random numbers for each given index */
+MATRIX_TYPE _network_random(size_t idx);
+
 /** Deallocate data used by a network_t structure */
 network_err_t network_destroy(network_t * net);
 
@@ -82,7 +97,7 @@ network_err_t network_inference(network_t * net, matrix_t * input, matrix_t * ou
 /** Runs network inference, taking data from the provided input matrix and saving data into the provided output matrix, as well as saving the values at all nodes for training/analysis
  * @param input the matrix containing input values, expected to be a column vector of length 'inSize'
  * @param output the matrix which will contain output values once inference is finished, expected to be a column vector of length 'outSize' (or the size of the last layer)
- * @param nodes an array of values at all the nodes of the model, both before and after activation (index 0 is layer, index 1 is node at layer, index 3 is before/after activation)
+ * @param nodes tracker object for the internal state of the nodes after inference
  */
 network_err_t network_inference_track(network_t * net, matrix_t * input, matrix_t * output, network_tracker_t * nodes);
 

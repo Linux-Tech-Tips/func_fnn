@@ -22,6 +22,8 @@ network_err_t network_init(network_t * net, size_t inSize, size_t depth, size_t 
 
     /* Initialising weights and activations */
     for(size_t i = 0; i < depth; ++i) {
+	/* Zero-initialising the empty matrix */
+	*(net->weights + i) = (matrix_t){0};
 	/* Allocate matrices for the weights */
 	if(matrix_init((net->weights + i), layers[i], (i > 0 ? layers[i-1] : inSize)) != MATRIX_OK)
 	    return NETWORK_ERR_ALLOC;
@@ -29,6 +31,17 @@ network_err_t network_init(network_t * net, size_t inSize, size_t depth, size_t 
 	net->activations[i] = activations[i];
     }
     return NETWORK_OK;
+}
+
+network_err_t network_initWeights(network_t * net) {
+    for(size_t idx = 0; idx < net->depth; ++idx) {
+	matrix_populate((net->weights + idx), _network_random);
+    }
+    return NETWORK_OK;
+}
+
+MATRIX_TYPE _network_random(size_t idx) {
+    return (((rand() % (NETWORK_WEIGHT_RAND_MAX - NETWORK_WEIGHT_RAND_MIN)) + NETWORK_WEIGHT_RAND_MIN) / NETWORK_WEIGHT_RAND_DIV);
 }
 
 network_err_t network_destroy(network_t * net) {

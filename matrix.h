@@ -58,6 +58,9 @@ matrix_err_t matrix_get(matrix_t * m, size_t row, size_t col, MATRIX_TYPE * val)
 /** Set an element at the given row and column of a matrix */
 matrix_err_t matrix_set(matrix_t * m, size_t row, size_t col, MATRIX_TYPE val);
 
+/** Populates a given initialised matrix with values given by the function 'val' */
+matrix_err_t matrix_populate(matrix_t * m, MATRIX_TYPE (*val)(size_t idx));
+
 /** Copy content of m1 into m2 */
 matrix_err_t matrix_copy(matrix_t * m1, matrix_t * m2);
 

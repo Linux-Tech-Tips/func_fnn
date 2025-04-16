@@ -51,6 +51,15 @@ matrix_err_t matrix_set(matrix_t * m, size_t row, size_t col, MATRIX_TYPE val) {
     return result;
 }
 
+matrix_err_t matrix_populate(matrix_t * m, MATRIX_TYPE (*val)(size_t idx)) {
+    if(!m || !val)
+	return MATRIX_ERR;
+    for(size_t i = 0; i < m->dataLen; ++i) {
+	m->data[i] = val(i);
+    }
+    return MATRIX_OK;
+}
+
 matrix_err_t matrix_copy(matrix_t * m1, matrix_t * m2) {
     matrix_err_t result = MATRIX_ERR_MISMATCH;
     if(m1->cols == m2->cols && m1->rows == m2->rows && m1->dataLen == m2->dataLen) {
