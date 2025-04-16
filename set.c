@@ -101,7 +101,7 @@ set_err_t set_train_i(set_t * set, network_t * net, network_tracker_t * tracker,
 	    }
 	}
 	/* All hidden layer weights */
-	for(int layerIdx = (net->depth - 2); layerIdx >= 0; --layerIdx) {
+	for(int32_t layerIdx = (net->depth - 2); layerIdx >= 0; --layerIdx) {
 	    /* Getting local data for temporary current layer error function derivative values */
 	    MATRIX_TYPE * tmpErrD = (MATRIX_TYPE *)(malloc(tracker->layers[layerIdx] * sizeof(MATRIX_TYPE)));
 	    /* Going through each node in the current layer */

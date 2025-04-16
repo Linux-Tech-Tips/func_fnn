@@ -8,6 +8,7 @@
 #include "activation.h"
 #include "network.h"
 #include "set.h"
+#include "util.h"
 
 int main(void) {
 
@@ -256,6 +257,9 @@ int main(void) {
 	matrix_get((trainSet.out + idx), 0, 0, &dOut);
 	printf("%lu. Delta: %.5f\n", (idx + 1), (realOut - dOut));
     }
+
+    /* Saving network */
+    util_saveNetwork(&trainTest, "last_net.dat");
 
     set_destroy(&trainSet);
     network_destroy(&trainTest);
