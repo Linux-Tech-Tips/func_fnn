@@ -66,36 +66,93 @@ network_err_t network_setActivation(network_t * net, size_t layerIdx, activation
 }
 
 network_err_t network_inference(network_t * net, matrix_t * input, matrix_t * output) {
+    return network_inference_track(net, input, output, NULL);
+}
+
+network_err_t network_inference_track(network_t * net, matrix_t * input, matrix_t * output, network_tracker_t * nodes) {
     /* Validating arguments */
     if(!net || !input || !output)
 	return NETWORK_ERR_NULL;
     if(input->rows != net->inSize || output->rows != net->outSize)
 	return NETWORK_ERR_PARAM;
+
     /* Running inference (a series of matrix multiplication) */
     matrix_t prevResult = {0};
     if(matrix_init(&prevResult, net->inSize, 1) != MATRIX_OK)
 	return NETWORK_ERR_ALLOC;
     if(matrix_copy(input, &prevResult) != MATRIX_OK)
 	return NETWORK_ERR_INFERENCE;
+
     /* Iteratively performing matrix multiplication */
     for(size_t layerIdx = 0; layerIdx < net->depth; ++layerIdx) {
+
 	/* Allocate space for temporary result */
 	matrix_t tmpResult = {0};
 	if(matrix_init(&tmpResult, (net->weights + layerIdx)->rows, 1) != MATRIX_OK)
 	    return NETWORK_ERR_ALLOC;
+
 	/* Do matrix multiplication */
 	if(matrix_matmul((net->weights + layerIdx), &prevResult, &tmpResult) != MATRIX_OK)
 	    return NETWORK_ERR_INFERENCE;
 	/* Free temporarily allocated space, copy temporary result over to the previous result */
 	if(matrix_destroy(&prevResult) != MATRIX_OK)
 	    return NETWORK_ERR_ALLOC;
+
+	/* Attempting to write to nodes before activation */
+	if(nodes) {
+	    for(size_t i = 0; i < tmpResult.rows; ++i) {
+		MATRIX_TYPE num;
+		matrix_get(&tmpResult, i, 0, &num);
+		nodes->layerData[layerIdx][i][0] = num;
+	    }
+	}
+
+	/* Calling activation function */
 	net->activations[layerIdx].f(&tmpResult);
+
+	/* Attempting to write nodes after activation */
+	if(nodes) {
+	    for(size_t i = 0; i < tmpResult.rows; ++i) {
+		MATRIX_TYPE num;
+		matrix_get(&tmpResult, i, 0, &num);
+		nodes->layerData[layerIdx][i][1] = num;
+	    }
+	}
+
+	/* Overwriting the previous result with the current temporary result */
 	prevResult = tmpResult;
     }
+
     /* Writing data to output and freeing allocated resources */
     if(matrix_copy(&prevResult, output) != MATRIX_OK)
 	return NETWORK_ERR_INFERENCE;
     if(matrix_destroy(&prevResult) != MATRIX_OK)
 	return NETWORK_ERR_ALLOC;
+    return NETWORK_OK;
+}
+
+network_err_t network_tracker_init(network_tracker_t * tracker, size_t depth, size_t * layers) {
+    tracker->depth = depth;
+    tracker->layers = (size_t *)(malloc(depth * sizeof(size_t)));
+    tracker->layerData = (MATRIX_TYPE ***)(malloc(tracker->depth * sizeof(MATRIX_TYPE **)));
+    for(size_t i = 0; i < depth; ++i) {
+	tracker->layers[i] = layers[i];
+	tracker->layerData[i] = (MATRIX_TYPE **)(malloc(tracker->layers[i] * sizeof(MATRIX_TYPE *)));
+	for(size_t j = 0; j < tracker->layers[i]; ++j) {
+	    tracker->layerData[i][j] = (MATRIX_TYPE *)(malloc(2 * sizeof(MATRIX_TYPE)));
+	}
+    }
+    return NETWORK_OK;
+}
+
+network_err_t network_tracker_destroy(network_tracker_t * tracker) {
+    for(size_t i = 0; i < tracker->depth; ++i) {
+	for(size_t j = 0; j < tracker->layers[i]; ++j) {
+	    free(tracker->layerData[i][j]);
+	}
+	free(tracker->layerData[i]);
+    }
+    free(tracker->layerData);
+    free(tracker->layers);
     return NETWORK_OK;
 }

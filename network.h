@@ -26,6 +26,16 @@ typedef struct {
 
 } network_t;
 
+/** Data structure tracking the values within internal network nodes during inference */
+typedef struct {
+    /** The total number of tracked layers */
+    size_t depth;
+    /** The sizes of each individual layer */
+    size_t * layers;
+    /** The data within the network tracker */
+    MATRIX_TYPE *** layerData;
+} network_tracker_t;
+
 /** Network error/result type, returned from network.h functions */
 typedef enum {
     /** Default state, successful operation */
@@ -68,5 +78,20 @@ network_err_t network_setActivation(network_t * net, size_t layerIdx, activation
  * @param output the matrix which will contain output values once inference is finished, expected to be a column vector of length 'outSize' (or the size of the last layer)
  */
 network_err_t network_inference(network_t * net, matrix_t * input, matrix_t * output);
+
+/** Runs network inference, taking data from the provided input matrix and saving data into the provided output matrix, as well as saving the values at all nodes for training/analysis
+ * @param input the matrix containing input values, expected to be a column vector of length 'inSize'
+ * @param output the matrix which will contain output values once inference is finished, expected to be a column vector of length 'outSize' (or the size of the last layer)
+ * @param nodes an array of values at all the nodes of the model, both before and after activation (index 0 is layer, index 1 is node at layer, index 3 is before/after activation)
+ */
+network_err_t network_inference_track(network_t * net, matrix_t * input, matrix_t * output, network_tracker_t * nodes);
+
+/** Initializes a network internal node tracker data structure 
+ * @param layers the node count for each layer in the network, the last being the number of outputs, as an array
+ */
+network_err_t network_tracker_init(network_tracker_t * tracker, size_t depth, size_t * layers);
+
+/** Destroys a network internal node tracker data structure */
+network_err_t network_tracker_destroy(network_tracker_t * tracker);
 
 #endif /* NETWORK_H */

@@ -67,7 +67,7 @@ Required stuff:
 In code, this translates to keeping track of:
 
 - all weights of the network
-- all values of each node, before and after activation, in the network
+- all values of each node, before and after activation, in the network, after inference
 - activations and their derivatives for each layer
 - expected value and inferred value at each output
 - calculated error function derivatives for each node in the previously calculated layer, for anything after output

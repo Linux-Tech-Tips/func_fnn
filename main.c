@@ -114,11 +114,6 @@ int main(void) {
 	}
     }
 
-    matrix_destroy(&in);
-    matrix_destroy(&out);
-
-    network_destroy(&testNet);
-
     /* Printing resulting map */
     for(size_t y = 0; y < 30; ++y) {
 	for(size_t x = 0; x < 60; ++x) {
@@ -126,6 +121,34 @@ int main(void) {
 	}
 	putchar('\n');
     }
+
+    /* Testing inference with tracking */
+    MATRIX_TYPE n1 = 1.0f, n2 = 0.5f;
+    matrix_set(&in, 0, 0, n1);
+    matrix_set(&in, 1, 0, n2);
+    matrix_set(&in, 2, 0, 1.0f);
+
+    network_tracker_t testTracker = {0};
+    network_tracker_init(&testTracker, testNet.depth, layers);
+
+    network_inference_track(&testNet, &in, &out, &testTracker);
+
+    puts("Network internal nodes:");
+    puts("Layer 1:");
+    printf("(%.2f, %.2f)\n(%.2f, %.2f)\n(%.2f, %.2f)\n(%.2f, %.2f)\n", 
+	    testTracker.layerData[0][0][0], testTracker.layerData[0][0][1],
+	    testTracker.layerData[0][1][0], testTracker.layerData[0][1][1],
+	    testTracker.layerData[0][2][0], testTracker.layerData[0][2][1],
+	    testTracker.layerData[0][3][0], testTracker.layerData[0][3][1]);
+    puts("Layer 2:");
+    printf("(%.2f, %.2f)\n", testTracker.layerData[1][0][0], testTracker.layerData[1][0][1]);
+
+    network_tracker_destroy(&testTracker);
+
+    matrix_destroy(&in);
+    matrix_destroy(&out);
+
+    network_destroy(&testNet);
 
     return 0;
 }
