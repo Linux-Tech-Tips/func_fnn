@@ -15,9 +15,16 @@
 
 typedef void (*activation_func_t) (matrix_t *);
 
+
+typedef enum {
+    ACTIVATION_RELU = 0,
+    ACTIVATION_LOGISTIC = 1
+} activation_type_t;
+
 typedef struct {
     activation_func_t f;
     activation_func_t df;
+    activation_type_t type;
 } activation_t;
 
 
@@ -38,5 +45,8 @@ void activation_logistic_df(matrix_t * m);
 
 /** Template structure for the logistic activation function */
 extern activation_t activation_logistic;
+
+/** Convenience function, returns corresponding activation_t structure of the given type */
+activation_t activation_get(activation_type_t type);
 
 #endif /* ACTIVATION_H */

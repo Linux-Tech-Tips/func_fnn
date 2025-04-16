@@ -16,7 +16,8 @@ void activation_relu_df(matrix_t * m) {
 
 activation_t activation_relu = {
     .f = activation_relu_f,
-    .df = activation_relu_df
+    .df = activation_relu_df,
+    .type = ACTIVATION_RELU
 };
 
 void activation_logistic_f(matrix_t * m) {
@@ -34,5 +35,18 @@ void activation_logistic_df(matrix_t * m) {
 
 activation_t activation_logistic = {
     .f = activation_logistic_f,
-    .df = activation_logistic_df
+    .df = activation_logistic_df,
+    .type = ACTIVATION_LOGISTIC
 };
+
+activation_t activation_get(activation_type_t type) {
+    switch(type) {
+	case ACTIVATION_RELU:
+	    return activation_relu;
+	case ACTIVATION_LOGISTIC:
+	    return activation_logistic;
+
+	default:
+	    return (activation_t){0};
+    }
+}
