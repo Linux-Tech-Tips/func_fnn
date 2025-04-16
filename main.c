@@ -157,8 +157,8 @@ int main(void) {
 
     /* Testing training on dummy dataset */
     network_t trainTest = {0};
-    size_t layers2 [2] = {3, 1};
-    activation_t activations2 [2] = { activation_relu, activation_logistic };
+    size_t layers2 [2] = {5, 1};
+    activation_t activations2 [2] = { activation_logistic, activation_logistic };
     network_init(&trainTest, 3, 2, layers2, activations2);
     network_initWeights(&trainTest);
 
@@ -202,7 +202,7 @@ int main(void) {
     outTrain[0] = 0.0f;
     set_setData(&trainSet, 9, inTrain, outTrain);
 
-    set_train(&trainSet, &trainTest, layers2, 10, 10000);
+    set_train(&trainSet, &trainTest, layers2, 0.5f, 10000);
 
     puts("Trained weights:");
     for(size_t idx = 0; idx < trainTest.depth; ++idx) {
@@ -246,6 +246,16 @@ int main(void) {
 	putchar('\n');
     }
 
+    /* Verifying correctness on the set */
+    puts("Training data verification:");
+    for(size_t idx = 0; idx < trainSet.size; ++idx) {
+	matrix_copy((trainSet.in + idx), &in);
+	network_inference(&trainTest, &in, &out);
+	MATRIX_TYPE realOut, dOut;
+	matrix_get(&out, 0, 0, &realOut);
+	matrix_get((trainSet.out + idx), 0, 0, &dOut);
+	printf("%lu. Delta: %.5f\n", (idx + 1), (realOut - dOut));
+    }
 
     set_destroy(&trainSet);
     network_destroy(&trainTest);
