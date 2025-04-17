@@ -1,0 +1,8 @@
+*.swp
+*.elf
+*.o
+*.net
+
+build
+.dependencies
+doxygen_doc
