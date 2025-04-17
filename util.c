@@ -89,6 +89,45 @@ util_err_t util_loadPoints(set_t * set, char const * filename) {
     return UTIL_OK;
 }
 
+util_err_t util_loadConfig(util_config_t * config, char const * filename) {
+    if(!config || !filename)
+	return UTIL_ERR_PARAM;
+
+    /* Loading file and checking success */
+    FILE * fp = fopen(filename, "r");
+    if(!fp)
+	return UTIL_ERR_FILE;
+
+    /* Loading config file */
+    char * line = NULL;
+    size_t lineLen = 0;
+    while(getline(&line, &lineLen, fp) >= 0) {
+	/* Skipping commented lines */
+	if(line[0] == '#')
+	    continue;
+	/* Processing options */
+	if(strstr(line, "learning_rate")) {
+	    sscanf(line, "learning_rate %f", &config->learningRate);
+	} else if(strstr(line, "iteration_count")) {
+	    sscanf(line, "iteration_count %lu", &config->itCount);
+	} else if(strstr(line, "hidden_size")) {
+	    sscanf(line, "hidden_size %lu", &config->hiddenSize);
+	} else if(strstr(line, "hidden_activation")) {
+	    sscanf(line, "hidden_activation %d", (int *)(&config->hiddenActivation));
+	} else if(strstr(line, "output_activation")) {
+	    sscanf(line, "output_activation %d", (int *)(&config->outputActivation));
+	} else if(strstr(line, "random_int_min")) {
+	    sscanf(line, "random_int_min %d", &config->weightRandMin);
+	} else if(strstr(line, "random_int_max")) {
+	    sscanf(line, "random_int_max %d", &config->weightRandMax);
+	} else if(strstr(line, "div_const")) {
+	    sscanf(line, "div_const " MATRIX_TYPE_SCANF, &config->weightRandDiv);
+	}
+    }
+    free(line);
+    return UTIL_OK;
+}
+
 util_err_t util_heatmap(network_t * net, float startPointX, float startPointY, float sizeX, float sizeY, float step, char * charset, size_t charsetLength) {
     if(!net || !charset)
 	return UTIL_ERR_PARAM;
