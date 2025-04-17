@@ -47,6 +47,8 @@ void main_point(MATRIX_TYPE x, MATRIX_TYPE y);
 
 void main_heatmap(float originX, float originY, float sizeX, float sizeY, float step);
 
+void main_weights(void);
+
 int main(int argc, char ** argv) {
 
     /* Initialising random number generator */
@@ -100,6 +102,9 @@ int main(int argc, char ** argv) {
 	    sscanf(argv[6], "%f", &step);
 	main_heatmap(originX, originY, sizeX, sizeY, step);
 
+    } else if(strcmp(argv[1], "weights") == 0) {
+	main_weights();
+
     } else {
 	printf("Error: unrecognized command '%s'\nTry '%s help'\n", argv[1], argv[0]);
 	return 1;
@@ -115,6 +120,7 @@ void main_printHelp(char * programName) {
 	 "  - point <x> <y> ...................... run inference and provide an output value for a given point (x,y)\n"
 	 "  - heatmap [origin_x] [origin_y]\n"
 	 "            [size_x] [size_y] [step] ... run inference (optionally specify a custom area of size (size_x,size_y) from origin) and display heatmap\n"
+	 "  - weights ............................ dump the weights of the current network"
 	 "  - --help | -h | help ................. display this help menu");
 }
 
@@ -196,6 +202,21 @@ void main_heatmap(float originX, float originY, float sizeX, float sizeY, float 
     /* Generate heatmap */
     char charset [7] = {'.', ',', '-', ';', '!', 'I', 'H'};
     util_heatmap(&net, originX, originY, sizeX, sizeY, step, charset, 7);
+
+    /* Dispose of any allocated resources */
+    network_destroy(&net);
+}
+
+void main_weights(void) {
+    /* Load network */
+    network_t net = {0};
+    main_loadNet(&net, MAIN_NETWORK_FILENAME);
+
+    /* Dump weights */
+    puts("Hidden layer weights:");
+    matrix_print(net.weights);
+    puts("\nOutput layer weights:");
+    matrix_print(net.weights + 1);
 
     /* Dispose of any allocated resources */
     network_destroy(&net);
