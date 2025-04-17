@@ -73,16 +73,3 @@ In code, this translates to keeping track of:
 - calculated error function derivatives for each node in the previously calculated layer, for anything after output
 
 This will require the inference function to be able to keep track of the calculated values at nodes.
-
-## TODO For the immediate future
-
-- Weights and overall network saving/loading
-- Random function params modifiable at runtime?
-- Main file with network demo
-  - File with arbitrarily long set of points in 2D space, with class 0 or 1
-  - Training hyperparams configurable by the user for any file
-  - Ability to train using file with hyperparams
-  - Ability to load trained weights, run point inference or do a heatmap between given bounds
-
-- Util functions unit: saving/loading network with weights, loading dataset from file of points, generating heatmap with a network and coords
-- Main file: decision based off command line args, then either loading data set and training+saving, or loading, inference and heatmap
