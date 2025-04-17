@@ -100,7 +100,7 @@ matrix_err_t matrix_print(matrix_t * m) {
 	for(size_t col = 0; col < m->cols; ++col) {
 	    MATRIX_TYPE val;
 	    matrix_get(m, row, col, &val);
-	    printf(MATRIX_TYPE_F "\t", val);
+	    printf(MATRIX_TYPE_PRINTF "\t", val);
 	}
 	putchar('\n');
     }

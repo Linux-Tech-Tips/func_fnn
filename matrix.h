@@ -11,11 +11,15 @@
 
 #ifndef MATRIX_TYPE
 #define MATRIX_TYPE float
-#endif
+#endif /* MATRIX_TYPE */
 
-#ifndef MATRIX_TYPE_F
-#define MATRIX_TYPE_F "%.2f"
-#endif
+#ifndef MATRIX_TYPE_PRINTF
+#define MATRIX_TYPE_PRINTF "%.2f"
+#endif /* MATRIX_TYPE_PRINTF */
+
+#ifndef MATRIX_TYPE_SCANF
+#define MATRIX_TYPE_SCANF "%f"
+#endif /* MATRIX_TYPE_SCANF */
 
 /** Structure containing data for a matrix */
 typedef struct {

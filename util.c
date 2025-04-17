@@ -62,7 +62,7 @@ util_err_t util_loadPoints(set_t * set, char const * filename) {
     while(getline(&line, &lineSize, fp) >= 0) {
 	if(lineSize > 0) {
 	    MATRIX_TYPE in1 = 0, in2 = 0, out = 0;
-	    if(sscanf(line, "%f,%f,%f", &in1, &in2, &out) == 3) {
+	    if(sscanf(line, MATRIX_TYPE_SCANF "," MATRIX_TYPE_SCANF "," MATRIX_TYPE_SCANF, &in1, &in2, &out) == 3) {
 		/* Reallocate points array if end of available space reached */
 		if(pointsLen == maxPointsLen) {
 		    maxPointsLen *= 2;
