@@ -1,5 +1,9 @@
 #include "network.h"
 
+int32_t network_weightRandMin = -50;
+int32_t network_weightRandMax = 50;
+float network_weightRandDiv = 1000.0f;
+
 network_err_t network_init(network_t * net, size_t inSize, size_t depth, size_t * layers, activation_t * activations) {
     /* Checking validity of properties */
     if(inSize < 1 || depth < 1)
@@ -41,7 +45,7 @@ network_err_t network_initWeights(network_t * net) {
 }
 
 MATRIX_TYPE _network_random(size_t idx) {
-    return (((rand() % (NETWORK_WEIGHT_RAND_MAX - NETWORK_WEIGHT_RAND_MIN)) + NETWORK_WEIGHT_RAND_MIN) / NETWORK_WEIGHT_RAND_DIV);
+    return (((rand() % (network_weightRandMax - network_weightRandMin)) + network_weightRandMin) / network_weightRandDiv);
 }
 
 network_err_t network_destroy(network_t * net) {

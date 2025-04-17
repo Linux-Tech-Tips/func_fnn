@@ -12,11 +12,11 @@
 #include "activation.h"
 
 /** Minimum value for the weight initialization random integer generator */
-#define NETWORK_WEIGHT_RAND_MIN -50
+extern int32_t network_weightRandMin;
 /** Maximum value for the weight initialization random integer generator */
-#define NETWORK_WEIGHT_RAND_MAX 50
+extern int32_t network_weightRandMax;
 /** Inverse multiplier for the generated integer for random weight initialization - use this to initialize to floating point numbers */
-#define NETWORK_WEIGHT_RAND_DIV 1000.0f
+extern float network_weightRandDiv;
 
 /** Data structure representing a neural network */
 typedef struct {
