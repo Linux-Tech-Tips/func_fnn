@@ -42,6 +42,7 @@ util_err_t util_loadNetwork(network_t * net, char const * filename) {
 	activation_type_t type;
 	if(fread((void *)(&type), sizeof(activation_type_t), 1, fp) != 1)
 	    return UTIL_ERR_READ;
+	*(net->activations + idx) = activation_get(type);
     }
     return UTIL_OK;
 }
@@ -68,26 +69,92 @@ util_err_t util_loadPoints(set_t * set, char const * filename) {
 		    points = (MATRIX_TYPE **)realloc(points, sizeof(MATRIX_TYPE *) * maxPointsLen);
 		}
 		/* Write processed numbers from file into points array */
-		points[pointsLen] = (MATRIX_TYPE *)malloc(sizeof(MATRIX_TYPE) * 3);
+		points[pointsLen] = (MATRIX_TYPE *)malloc(sizeof(MATRIX_TYPE) * 4);
 		points[pointsLen][0] = in1;
 		points[pointsLen][1] = in2;
-		points[pointsLen][2] = out;
+		points[pointsLen][2] = 1.0f;
+		points[pointsLen][3] = out;
 		++pointsLen;
 	    }
 	}
     }
     free(line);
     /* Initialising set_t structure and populating with the read values */
-    set_init(set, pointsLen, 2, 1);
+    set_init(set, pointsLen, 3, 1);
     for(size_t idx = 0; idx < pointsLen; ++idx) {
-	set_setData(set, idx, points[idx], (points[idx] + 2));
+	set_setData(set, idx, points[idx], (points[idx] + 3));
 	free(points[idx]);
     }
     free(points);
     return UTIL_OK;
 }
 
-util_err_t util_heatMap(network_t * net, int32_t startPointX, int32_t startPointY, size_t sizeX, size_t sizeY, float step, char * charset, size_t charsetLength) {
-    // TODO STUB
+util_err_t util_heatmap(network_t * net, float startPointX, float startPointY, float sizeX, float sizeY, float step, char * charset, size_t charsetLength) {
+    if(!net || !charset)
+	return UTIL_ERR_PARAM;
+
+    /* Running network inference to generate heatmap values, keeping track of max and min */
+    MATRIX_TYPE min, max;
+    size_t xLength = (size_t)(sizeX / step);
+    size_t yLength = (size_t)(sizeY / step);
+    MATRIX_TYPE map [yLength][xLength];
+    matrix_t out = {0}, in = {0};
+    matrix_init(&out, 1, 1);
+    matrix_init(&in, 3, 1);
+    for(size_t y = 0; y < yLength; ++y) {
+	for(size_t x = 0; x < xLength; ++x) {
+	    /* Setting up and performing inference for the current data point */
+	    matrix_set(&in, 0, 0, (startPointX + x * step));
+	    matrix_set(&in, 1, 0, (startPointY + y * step));
+	    matrix_set(&in, 2, 0, 1.0f);
+	    network_inference(net, &in, &out);
+	    MATRIX_TYPE outVal;
+	    matrix_get(&out, 0, 0, &outVal);
+	    /* Saving obtained value, updating min, max */
+	    map[y][x] = outVal;
+	    if(x == 0 && y == 0) {
+		min = outVal;
+		max = outVal;
+	    }
+	    if(outVal < min)
+		min = outVal;
+	    if(outVal > max)
+		max = outVal;
+	}
+    }
+    matrix_destroy(&in);
+    matrix_destroy(&out);
+
+    /* Printing heatmap based on charset */
+    float charStep = (max - min) / (float)(charsetLength - 1);
+    for(int32_t y = (yLength - 1); y >= 0; --y) {
+	/* Printing left border with numbers */
+	if(y == (yLength - 1)) {
+	    if(startPointY < 0 && (startPointY + sizeY) >= 0)
+		putchar(' ');
+	    printf("%.2f | ", (startPointY + sizeY));
+	} else {
+	    if(startPointY < 0)
+		putchar(' ');
+	    fputs("     | ", stdout);
+	}
+	/* Printing line of numbers */
+	for(size_t x = 0; x < xLength; ++x) {
+	    size_t charIdx = (size_t)((map[y][x] - min) / charStep);
+	    printf("%c ", charset[charIdx]);
+	}
+	putchar('\n');
+    }
+    /* Printing bottom lines with bar and numbers */
+    printf("%.2f \\", startPointY);
+    for(size_t x = 0; x < xLength; ++x)
+	fputs("--", stdout);
+    if(startPointY < 0)
+	putchar(' ');
+    printf("\n      %.2f", startPointX);
+    for(size_t x = 0; x < (xLength - 4); ++x)
+	fputs("  ", stdout);
+    printf("%.2f\n", (startPointX + sizeX));
+
     return UTIL_OK;
 }
